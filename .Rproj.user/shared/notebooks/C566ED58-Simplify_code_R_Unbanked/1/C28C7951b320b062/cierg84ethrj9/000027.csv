@@ -1,0 +1,5 @@
+"0","Q19 <- data[,grep(""^Group_name|A-3"",names(data))]"
+"0","Q20 <- data[,grep(""^Group_name|Role of participant"",names(data))]"
+"0","Q21 <- data[,grep(""^Group_name|Mobile of participant"",names(data))]"
+"0","Q22 <- data[,grep(""^Group_name|Gender of participant"",names(data))]"
+"0",""

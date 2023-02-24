@@ -1,0 +1,203 @@
+---
+title: "SurveyAnalysis"
+author: "John"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# [I_1Q_19] A-3 Name of participant {0}
+
+```{r}
+library(readxl)
+library(tidyverse)
+data <- read_excel("FGD Guide 3-A Leadership unbanked_2023_23_02_07_57.xlsx")
+data %>% head()
+```
+
+
+```{r}
+Q19 <- data[,grep("^Group_name|A-3",names(data))]
+Q20 <- data[,grep("^Group_name|Role of participant",names(data))]
+Q21 <- data[,grep("^Group_name|Mobile of participant",names(data))]
+Q22 <- data[,grep("^Group_name|Gender of participant",names(data))]
+
+```
+
+# Active members
+
+```{r}
+library(reshape2)
+q19 <-Q19 %>% melt(id.vars = "Group_name") %>% mutate(Respondent = gsub("_A-3 Name of participant {0}|\\{0\\}|I_","",variable),                                                      Respondent=as.numeric(Respondent)) %>% 
+  rename(Name = value)
+
+q20<-Q20 %>% melt(id.vars = "Group_name") %>% mutate(Respondent = gsub("_A-4 Role of participant|\\{0\\}|I_|_O1","",variable),                                                Respondent=as.numeric(Respondent)) %>% 
+  rename(Role = value)
+
+q21<-Q21 %>% melt(id.vars = "Group_name") %>% mutate(Respondent = gsub("_A-5 Mobile of participant|\\{0\\}|I_|_O1","",variable),                                                Respondent=as.numeric(Respondent)) %>% 
+  rename(Mobile = value)
+
+q22<-Q22 %>% melt(id.vars = "Group_name") %>% mutate(Respondent = gsub("_A-6 Gender of participant|\\{0\\}|I_|_O1","",variable),                                                Respondent=as.numeric(Respondent)) %>% 
+  rename(Gender = value)
+
+dy = merge(q19,q20,by = c("Group_name","Respondent")) %>% select(Group_name,Respondent,Name,Role) 
+dy1 = merge(dy,q21,on =c("Group_name","Respondent")) %>% select(Group_name,Respondent,Name,Role,Mobile)
+final1 = merge(dy1,q22,on =c("Group_name","Respondent")) %>% select(Group_name,Respondent,Name,Role,Mobile,Gender)
+
+rm(dy,dy1,q19,q20,q21,q22,Q19,Q20,Q21,Q22,dy2)
+
+```
+
+# Absent members
+
+```{r}
+q23 <- data[,grep("^Group_name|A-7",names(data))]
+names(Q23)<-c("Group_name","A-7:Number_leaders_absent")
+q24 <- data[,grep("^Group_name|A-8",names(data))] %>% melt(id.vars = "Group_name") %>% rename("Name" =value) %>% 
+  mutate(person = gsub("_A-8 Name|I_","",variable),
+         person = as.numeric(person)) %>% 
+  select(Group_name,Name,person)
+q25 <- data[,grep("^Group_name|A-9",names(data))] %>% melt(id.vars = "Group_name") %>% rename("Role" =value) %>% 
+  mutate(person = gsub("_A-9 Role|I_","",variable),
+         person = as.numeric(person)) %>% 
+  select(Group_name,Role,person)
+q26 <-data[,grep("^Group_name|A-10",names(data))] %>% melt(id.vars = "Group_name") %>% rename("Mobile" =value) %>% 
+  mutate(person = gsub("_A-10 Mobile|I_","",variable),
+         person = as.numeric(person)) %>% 
+  select(Group_name,Mobile,person)
+q27 <-data[,grep("^Group_name|A-11",names(data))] %>% melt(id.vars = "Group_name") %>% rename("Gender" =value) %>% 
+  mutate(person = gsub("_A-11 Gender|I_","",variable),
+         person = as.numeric(person)) %>% 
+  select(Group_name,Gender,person)
+
+dy = merge(q24,q25,by = c("Group_name","person")) %>% select(Group_name,person,Name,Role) 
+dy1 = merge(dy,q26,on =c("Group_name","person")) %>% select(Group_name,person,Name,Role,Mobile)
+dy2 = merge(dy1,q27,on =c("Group_name","person")) %>% select(Group_name,person,Name,Role,Mobile,Gender)
+dy3 <- merge(dy2,q23,on = "Group_name")
+names(dy3)<- c("Group_name", "person_code","A-8:Name","A-9:Role","A-10:Mobile","A-11:Gender","A-7:Number_leaders_absent")
+final2 <- dy3[,c("Group_name", "person_code","A-7:Number_leaders_absent","A-8:Name","A-9:Role","A-10:Mobile","A-11:Gender")]
+rm(dy,dy1,dy3,q23,q24,q25,q26,q27,Q23,dy4,dy2)
+```
+
+# GROUP MEMBERSHIP AND OPERATIONS 
+
+```{r}
+q28 <- data[,grep("^Group_name|B-1|B-2|B-3|B-4|B-5|B-6|B-7|B-8|B-9|B-10|B-11|B-12|Female|Male",names(data))]
+names(q28)<- c("Group_name",
+               "B-1:Year_formation",
+               "B-2:Group_name_records","B-2:Group_name_new",
+               "B-3:Group_split?",
+               "B-4:Group_split_year",
+               "B-5:Group_split_reason",
+               "B-6:Group_split_impact",
+               "B-7:Group_merge?",
+               "B-8:Group_merge_year",
+               "B-9:Group_merge_reason",
+               "B-10:Group_merge_impact",
+               "B-11:Membership_current",
+               "B-12:Membership_initial",
+               "Female_current",
+               "Female_number",
+               "Male_current",
+               "Male_number",
+               "B-14:Sources_of_income",
+               "B-15:group_operations_meetingscedule",
+               "B-15:group_operations_meetingscedule_others",
+               "B-16:Savings_amount",
+               "B-17: Min or Max?",
+               "B-17:Amount",
+               "B-18: Other_Income_specify",
+               "B-18:Other_Income_specify",
+               "B-19:What_other_sources",
+               "B-20:Distribution_period",
+               "B-20:Distribution_period_specify",
+               "B-21:Who_calculates"
+               
+               )
+
+q47 <- data[,grep("^Group_name|A_Q_47",names(data))]
+
+y <- data.frame(lapply(q47[1:4,2:5],(function(x) ifelse(x=="0",0,1))))
+names(y)<-c("B-19:Lending_to_members","B-19:Lending_to_NonMembers","B-19:Fine_to_members","B-19:Others")
+
+q49 <- data[,grep("^Group_name|A_Q_49",names(data))]
+y1 <- data.frame(lapply(q49[1:4,2:8],(function(x) ifelse(x=="0",0,1))))
+names(y1)<- gsub("_A_Q_49_[0-9]","",paste("B-21",names(y1)))
+new_data <- cbind(q28,y,y1)
+new_data <-new_data[,c("Group_name",
+               "B-1:Year_formation",
+               "B-2:Group_name_records","B-2:Group_name_new",
+               "B-3:Group_split?",
+               "B-4:Group_split_year",
+               "B-5:Group_split_reason",
+               "B-6:Group_split_impact",
+               "B-7:Group_merge?",
+               "B-8:Group_merge_year",
+               "B-9:Group_merge_reason",
+               "B-10:Group_merge_impact",
+               "B-11:Membership_current",
+               "B-12:Membership_initial",
+               "Female_current",
+               "Female_number",
+               "Male_current",
+               "Male_number",
+               "B-14:Sources_of_income",
+               "B-15:group_operations_meetingscedule",
+               "B-15:group_operations_meetingscedule_others",
+               "B-16:Savings_amount",
+               "B-17: Min or Max?",
+               "B-17:Amount",
+               "B-18: Other_Income_specify",
+               "B-18:Other_Income_specify",
+               "B-19:What_other_sources","B-19:Lending_to_members",
+               "B-19:Lending_to_NonMembers","B-19:Fine_to_members",
+               "B-19:Others",
+               "B-20:Distribution_period",
+               "B-20:Distribution_period_specify",
+               "B-21:Who_calculates")]
+rm(q28,q29,q47,q49,y,y1,ys)
+```
+
+
+#E. BANK ACCOUNT 
+
+```{r}
+data[,grep("^Group_name|E-1|E-2|E-3|E-4|E-5|E-6",names(data))]
+q70 <- data[,grep("A_Q_70",names(data))]
+q70<- data.frame(lapply(q70,(function(x) ifelse(x=="0",0,1))))
+names(q70)<- gsub("_A_Q_70_[0-9]","",paste("E-3:",names(q70)))
+
+q74 <- data[,grep("A_Q_74|E-7",names(data))]
+#names(q74)<- gsub("_A_Q_74_[0-9]","",paste("E-7:",names(q74)))
+
+q75 <- data[,grep("A_Q_75|E-8",names(data))]
+
+q76 <- data[,grep("A_Q_76",names(data))]
+q76<- data.frame(lapply(q76,(function(x) ifelse(x=="0",0,1))))
+
+```
+
+```{r}
+
+```
+
+
+
+
+```{r}
+library(xlsx)
+file = "Outputs/Master_file_unbanked.xlsx"
+write.xlsx(data, file, sheetName = "Original", 
+  col.names = TRUE, row.names = TRUE, append = FALSE)
+write.xlsx(final1, file, sheetName = "Introduction", 
+  col.names = TRUE, row.names = TRUE, append = T)
+write.xlsx(final2, file, sheetName = "absentmembers", 
+  col.names = TRUE, row.names = TRUE, append = T)
+write.xlsx(new_data, file, sheetName = "Group Operations", 
+  col.names = TRUE, row.names = TRUE, append = T)
+
+```
+
