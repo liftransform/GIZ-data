@@ -1,0 +1,5 @@
+"0","y <- df_sub1[,grep(""A_Q_55"",names(df_sub1))]"
+"0","y1 <-  data.frame(lapply(y,(function(x) ifelse(x==""0"",0,1))))"
+"0","colnames(y1)<-paste(""C-5"",colnames(y))"
+"0",""
+"0","y1"

@@ -1,0 +1,8 @@
+"0","df82=df_sub1 %>% select(contains(""F-1""))"
+"0","df82a=cbind(dd[,2],df82)"
+"0",""
+"0","df82a$`F-1 Do any of you have a bank account (Eg: or a mobile banking account) other than the group account, for example in your own name, for your business or a shared bank account with a family member?`<-gsub(""\\(insert count and specify)"","""",df82a$`F-1 Do any of you have a bank account (Eg: or a mobile banking account) other than the group account, for example in your own name, for your business or a shared bank account with a family member?`)"
+"0",""
+"0","colnames(df82a)<-c(""ID"",""F-1 Do any of you have a bank account (Eg: or a mobile banking account) other than the group account, for example in your own name, for your business or a shared bank account with a family member?"",""F-1 Please specify the number of shared accounts"")"
+"0",""
+"0",""

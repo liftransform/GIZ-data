@@ -1,0 +1,8 @@
+"0","x <- summary[,c(""firm_id"",""Country"")]"
+"1","[1m[33mError[39m in `summary[, c(""firm_id"", ""Country"")]`:[22m
+[33m![39m Can't subset columns that don't exist.
+[31m✖[39m Column `Country` doesn't exist.
+Backtrace:
+[90m 1. [39msummary[, c(""firm_id"", ""Country"")]
+[90m 2. [39m[1m[94mtibble:::`[.tbl_df`([39m[22msummary, , c(""firm_id"", ""Country"")[1m[94m)[39m[22m
+"

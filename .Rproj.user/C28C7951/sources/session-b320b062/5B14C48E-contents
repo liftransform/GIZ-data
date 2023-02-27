@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(readxl)
 library(tidyverse)
 data <- read_excel("FGD Guide 3-A Leadership unbanked_2023_23_02_07_57.xlsx")
-data %>% head()
+df   <- read_excel("FGD Guide 3-A Leadership unbanked_2023_23_02_07_57.xlsx")
 ```
 
 
@@ -47,7 +47,7 @@ dy = merge(q19,q20,by = c("Group_name","Respondent")) %>% select(Group_name,Resp
 dy1 = merge(dy,q21,on =c("Group_name","Respondent")) %>% select(Group_name,Respondent,Name,Role,Mobile)
 final1 = merge(dy1,q22,on =c("Group_name","Respondent")) %>% select(Group_name,Respondent,Name,Role,Mobile,Gender)
 
-rm(dy,dy1,q19,q20,q21,q22,Q19,Q20,Q21,Q22,dy2)
+
 
 ```
 
@@ -55,7 +55,7 @@ rm(dy,dy1,q19,q20,q21,q22,Q19,Q20,Q21,Q22,dy2)
 
 ```{r}
 q23 <- data[,grep("^Group_name|A-7",names(data))]
-names(Q23)<-c("Group_name","A-7:Number_leaders_absent")
+names(q23)<-c("Group_name","A-7:Number_leaders_absent")
 q24 <- data[,grep("^Group_name|A-8",names(data))] %>% melt(id.vars = "Group_name") %>% rename("Name" =value) %>% 
   mutate(person = gsub("_A-8 Name|I_","",variable),
          person = as.numeric(person)) %>% 
@@ -80,6 +80,7 @@ dy3 <- merge(dy2,q23,on = "Group_name")
 names(dy3)<- c("Group_name", "person_code","A-8:Name","A-9:Role","A-10:Mobile","A-11:Gender","A-7:Number_leaders_absent")
 final2 <- dy3[,c("Group_name", "person_code","A-7:Number_leaders_absent","A-8:Name","A-9:Role","A-10:Mobile","A-11:Gender")]
 rm(dy,dy1,dy3,q23,q24,q25,q26,q27,Q23,dy4,dy2)
+rm(dy,dy1,q19,q20,q21,q22,Q19,Q20,Q21,Q22,dy2)
 ```
 
 # GROUP MEMBERSHIP AND OPERATIONS 
@@ -158,29 +159,242 @@ new_data <-new_data[,c("Group_name",
                "B-20:Distribution_period",
                "B-20:Distribution_period_specify",
                "B-21:Who_calculates")]
-rm(q28,q29,q47,q49,y,y1,ys)
+rm(q28,q29,q47,q49,y,y1,ys,q23)
 ```
 
+# # C. FINANCIAL LITERACY TRAINING BY NGO 
+
+## [Q_51/Q_51_S] C-1
+
+```{r}
+
+dd=df %>% select("Bank","Group_name")
+df_sub=df[426:622]
+df_sub1=cbind(dd,df_sub)
+a=df_sub1[1:6]
+colnames(a)=c("Bank","Group_name","C-1 We want to talk a bit about the training you have received from {0} from {1}. According to our records, {2} provided some training/orientation to this group in/around {3}, {4} on the benefits of opening a bank account, how to open a bank account and on how mobile banking works?","C-1 How many trainings on opening a bank account and on how mobile banking works","C-2 Do you recall how many training sessions on financial contents/topics did you have from the NGO?"," C-2 How many times")
+#write.xlsx(a,"Summary analysis.xlsx", sheetName = "c-1$c-2", append = T, row.names = T)
+a$`C-2 Do you recall how many training sessions on financial contents/topics did you have from the NGO?`<-gsub("\\(Specify number of sessions)","",a$`C-2 Do you recall how many training sessions on financial contents/topics did you have from the NGO?`)
+
+a$`C-1 We want to talk a bit about the training you have received from {0} from {1}. According to our records, {2} provided some training/orientation to this group in/around {3}, {4} on the benefits of opening a bank account, how to open a bank account and on how mobile banking works?`<-gsub("(insert count)","",a$`C-1 We want to talk a bit about the training you have received from {0} from {1}. According to our records, {2} provided some training/orientation to this group in/around {3}, {4} on the benefits of opening a bank account, how to open a bank account and on how mobile banking works?`)
+```
+
+## C-3
+
+
+```{r}
+y <- df_sub1[,grep("A_Q_53",names(df_sub1))]
+y <-  data.frame(lapply(y,(function(x) ifelse(x=="0",0,1))))
+x <- df_sub1[,grep("^Group_name|C-3",names(df_sub1))]
+
+topic <- gsub("\\_A_Q_53_\\d","",names(y))
+topic <- gsub("\\.."," ",topic)
+topic<-paste("C-3 ",topic,"(Count)")
+topic <- c("Group_name",topic)
+#topic<-gsub("\\_A_Q_53_1"," ",names(topic))
+names(x)<- topic
+z <- cbind(x,y)
+
+z
+
+```
+
+## C-4
+
+```{r}
+y <- df_sub1[,grep("A_Q_54",names(df_sub1))]
+y <-  data.frame(lapply(y,(function(x) ifelse(x=="0",0,1))))
+y %>% gsub("\\_A_Q_5_\\d","",names(y))
+
+
+
+colnames(y)<-c("C-4  Security why use financial services","C-4 accessing financial services","C-4 opening bank account","C-4 depositing money in a bank account","C-4 transeffering money /making payiments to somenone","C-4 withdrawing money from the bank", "C-4 Viewing your bank account balance","C-4 banking costs ","C-4 a fixed term account","C-4 credit bank loans","C-4 bank agents")
+
+# df4=df_sub1 %>% select(contains("_A_Q_54_"))
+# df4a=cbind(dd,df4)
+# 
+# dfq=df4a %>%
+#  pivot_longer(cols = c("Security/ why use financial services_A_Q_54_1","Accessing financial services_A_Q_54_2","Opening a bank account_A_Q_54_3","Depositing money at a bank_A_Q_54_4","Transferring money/making payment sot someone_A_Q_54_5","Withdrawing cash from bank_A_Q_54_6","Viewing your account balance_A_Q_54_7","Banking costs_A_Q_54_8" ,"A fixed-term account_A_Q_54_9","Credit/bank loans_A_Q_54_10","Bank agents_A_Q_54_11" ),values_to ="Response",names_to = "Question") %>%
+#  mutate (clean= gsub("\\_A_Q_54_\\d" , "", Question)) %>% filter(Response!=0)
+# 
+# dfq$"C-4 Which topics of the training have you found most helpful/valuable?"=dfq$clean
+
+
+datacombined1=cbind(z,y)
+```
+
+## C-5 
+
+```{r}
+y <- df_sub1[,grep("A_Q_55",names(df_sub1))]
+y1 <-  data.frame(lapply(y,(function(x) ifelse(x=="0",0,1))))
+colnames(y1)<-paste("C-5",colnames(y))
+
+y1
+```
+
+
+```{r}
+
+# df5=df_sub1 %>% select(contains("_A_Q_55_"))
+# df5a=cbind(dd[,2],df5)
+# df5b=df5a %>% pivot_longer(!ID,names_to = "Question",values_to = "Counts") %>% filter(Counts!=0) %>% group_by(ID,Counts) %>% tally() 
+# colnames(df5b)=c("ID","C-5 I am now going to read you some topics you did not mention which may also have been covered in the training. Can you tell me if you recall any of these topics?","Responses")
+# df5b
+
+```
+
+## C-6 to C-9
+
+```{r}
+df6q=df_sub1 %>% select(contains("C-6"))
+df6a=cbind(dd[,2],df6q)
+df7a=df_sub1 %>% select(contains("C-7"))
+df8=df_sub1 %>% select(contains(c("C-8","C-9")))
+df7a=cbind(df6q,df7a[,2])
+colnames(df7a)=c("C-6 Have you ever had any follow-up training by the NGO on the same topics?","C-7 How many follow-up sessions do you recall attending?")
+dfqs=cbind(df7a,df8)
+dfqs
+```
+
+## C-10
+
+```{r}
+
+df10=df_sub1 %>% select(contains("_A_Q_60_"))
+df10a=cbind(dd[,2],df10)
+df10s=df10a %>% pivot_longer(!ID,names_to = "Question",values_to = "Response") 
+
+
+df10c=df_sub1 %>% select(contains("C-10"))
+df10b=cbind(dd[,2],df10c)
+dgsf=df10b %>% pivot_longer(!ID,names_to = "Question",values_to = "Response")
+dffs=cbind(df10s,dgsf[,3])
+colnames(dffs)=c("Group_name","Question","C-10 On what topics would you like more training/information?","Reason for more training")
+dffd=dffs %>% filter(`C-10 On what topics would you like more training/information?`!=0)
+
+df60=dffd[,-2] %>% dcast(Group_name~`C-10 On what topics would you like more training/information?`,value.var ="Reason for more training" )
+df60a=df60[,2:8]
+colnames(df60a)<-c("C-10 training on a fixed-term account","C-10 Training on accessing financial services","C-10 Training on bank agents", "C-10 Training on depositing money at a bank","C-10 Training on security/why use financial services", "C-10 Training on Viewing your account balance", "C-10 Training on withdrawing cash from bank ")
+
+
+`FINANCIAL LITERACY TRAINING BY NGO`=cbind(z,y,y1,dfqs,df60a)
+
+
+
+```
+
+
+
+## D-1 to D-5 NGO/FACILITATOR 
+
+
+```{r}
+DF61=df_sub1 %>% select(contains("D-"))
+DF61a=DF61[5:14]
+colnames(DF61a)=c("D-1 I now want to talk to you a bit about the support you have received or still do receive from the facilitator.  Beyond the training we spoke about earlier provided by the facilitator on banking, has the NGO/facilitator been involved with your group beyond this training? For example, has the facilitator provided you with any other forms of training?","D-1 Support received","D-2 Did the facilitator assist you with opening the bank account?","D-2 Please specify support given","D-3 Does the facilitator sometimes attend your group meetings?","D-3 Does the facilitator sometimes attend your group meetings?","D-4 Is there any other/additional form of assistance or training you would like to receive from your facilitator?","D-4 Please specify the assistance","D-5 Have you ever experienced any challenges with your facilitator of NGO?","D-5 Specify if any")
+DF61a$`D-1 I now want to talk to you a bit about the support you have received or still do receive from the facilitator.  Beyond the training we spoke about earlier provided by the facilitator on banking, has the NGO/facilitator been involved with your group beyond this training? For example, has the facilitator provided you with any other forms of training?`<-gsub("\\(specify)","",DF61a$`D-1 I now want to talk to you a bit about the support you have received or still do receive from the facilitator.  Beyond the training we spoke about earlier provided by the facilitator on banking, has the NGO/facilitator been involved with your group beyond this training? For example, has the facilitator provided you with any other forms of training?`)
+
+DF61a$`D-2 Did the facilitator assist you with opening the bank account?`<-gsub("\\(specify)","",DF61a$`D-2 Did the facilitator assist you with opening the bank account?`)
+DF61a$`D-3 Does the facilitator sometimes attend your group meetings?`<-gsub("\\(specify)","",DF61a$`D-3 Does the facilitator sometimes attend your group meetings?`)
+DF61a$`D-4 Is there any other/additional form of assistance or training you would like to receive from your facilitator?`<-gsub("\\(specify)","",DF61a$`D-4 Is there any other/additional form of assistance or training you would like to receive from your facilitator?`)
+
+
+`D-1 to D-5 NGO/FACILITATOR`=DF61a
+
+```
 
 #E. BANK ACCOUNT 
 
 ```{r}
-data[,grep("^Group_name|E-1|E-2|E-3|E-4|E-5|E-6",names(data))]
+dt1<- data[,grep("^Group_name|E-1$|E-2|E-3|E-4|E-5|E-6",names(data))]
 q70 <- data[,grep("A_Q_70",names(data))]
 q70<- data.frame(lapply(q70,(function(x) ifelse(x=="0",0,1))))
 names(q70)<- gsub("_A_Q_70_[0-9]","",paste("E-3:",names(q70)))
+fin <-cbind(dt1,q70)
 
-q74 <- data[,grep("A_Q_74|E-7",names(data))]
-#names(q74)<- gsub("_A_Q_74_[0-9]","",paste("E-7:",names(q74)))
+q74 <- data[,grep("A_Q_74",names(data))]
+q74a <-data[,grep("E-7",names(data))]
+names(q74)<- gsub("_A_Q_74_[0-9]","",paste("E-7:",names(q74)))
 
-q75 <- data[,grep("A_Q_75|E-8",names(data))]
+q75 <- data[,grep("A_Q_75",names(data))]
+q75 <- data.frame(lapply(q75,(function(x) ifelse(x=="0",0,1))))
+q75a <- data[,grep("E-8",names(data))]
+names(q75)<- gsub("_A_Q_75_[0-9]","",paste("E-8:",names(q75)))
+fin1 <- cbind(fin,q74,q74a,q75,q75a)
 
 q76 <- data[,grep("A_Q_76",names(data))]
 q76<- data.frame(lapply(q76,(function(x) ifelse(x=="0",0,1))))
+q76a <- data[,grep("E-9",names(data))]
+names(q76)<- gsub("_A_Q_76_[0-9]","",paste("E-9:",names(q76)))
+fin2 <- cbind(fin1,q76,q76a)
+
+q77 <- data[,grep("Walk_Hour|Walk_Minute",names(data))]
+costs <- data[,grep("E-11",names(data))]
+costs <- data.frame(lapply(costs,(function(x) ifelse(x %in% c("0",-1,"-1","No"),0,1))))
+appx <- data[,grep("E-12",names(data))]
+fin3 <- cbind(fin2,q77,costs,appx)
+rm(fin,fin1,fin2,q77,q76,q76a,q75,q75a,q70,dt1,q74,costs,appx,q74a,q23)
+```
+
+## E-GROUP MEMBERSHIP AND OPERATIONS 
+
+```{r}
+
+E80=df_sub1 %>% select(contains(c("E-13","A_Q_81_")))
+colnames(E80)<-c("E-13 Was there a cost in running the bank account?","E-14 Deposit fees","E-14 Withdrawal fees","E-14 Bank balance fees ","E-14 Admin fees","E-14 Other","E-14 Dont know")
+
+`E-GROUP MEMBERSHIP AND OPERATIONS`=E80
 
 ```
 
+# F. INDIVIDUAL BANK ACCOUNTS 
+
+## F-1
+
 ```{r}
+df82=df_sub1 %>% select(contains("F-1"))
+df82a=cbind(dd[,2],df82)
+
+df82a$`F-1 Do any of you have a bank account (Eg: or a mobile banking account) other than the group account, for example in your own name, for your business or a shared bank account with a family member?`<-gsub("\\(insert count and specify)","",df82a$`F-1 Do any of you have a bank account (Eg: or a mobile banking account) other than the group account, for example in your own name, for your business or a shared bank account with a family member?`)
+
+colnames(df82a)<-c("Group_name","F-1 Do any of you have a bank account (Eg: or a mobile banking account) other than the group account, for example in your own name, for your business or a shared bank account with a family member?","F-1 Please specify the number of shared accounts")
+
+
+```
+
+## F-2 to F-3
+
+```{r}
+df83=df_sub1 %>% select(contains(c("F-2","F-3")))
+colnames(df83)<-c("F-2 Do you know whether any individual members have their own personal or business bank accounts (Eg: or a mobile banking account)?"," F-3 Do you have an approximate idea how many members have their own bank accounts?","F-3 Please specify the actual number")
+df83$` F-3 Do you have an approximate idea how many members have their own bank accounts?`<-gsub("\\(Specify)","", df83$` F-3 Do you have an approximate idea how many members have their own bank accounts?`)
+
+
+
+`F. INDIVIDUAL BANK ACCOUNTS`=cbind(df82a,df83)
+
+
+```
+
+## G. SECURITY/ FRAUD 
+
+```{r}
+df84=df_sub1 %>% select(contains(c("G-1","G-2")))
+colnames(df84)<-c("G-1 Has cash ever been stolen from your group by an external party?","G-1 Please specify","G-2 Has your group ever experienced internal fraud, that is theft from a group leader or member?","G-2 Please specify the reason")
+df84$`G-2 Has your group ever experienced internal fraud, that is theft from a group leader or member?`<-gsub("\\(specify)"," ",df84$`G-2 Has your group ever experienced internal fraud, that is theft from a group leader or member?`)
+
+
+`G. SECURITY/ FRAUD` =df84
+```
+
+## H. EXPECTATIONS AND IMPACTS 
+
+```{r}
+df90s=df_sub1[194:197]
+
+
+`H. EXPECTATIONS AND IMPACTS`=df90s
 
 ```
 
@@ -198,6 +412,21 @@ write.xlsx(final2, file, sheetName = "absentmembers",
   col.names = TRUE, row.names = TRUE, append = T)
 write.xlsx(new_data, file, sheetName = "Group Operations", 
   col.names = TRUE, row.names = TRUE, append = T)
+write.xlsx(`FINANCIAL LITERACY TRAINING BY NGO`, file, sheetName = "FINANCIAL LITERACY TRAINING", 
+  col.names = TRUE, row.names = TRUE, append = T)
+write.xlsx(`D-1 to D-5 NGO/FACILITATOR`, file, sheetName = "NGO_FACILITATOR", 
+  col.names = TRUE, row.names = TRUE, append = T)
+write.xlsx(fin3, file, sheetName = "Bank account", 
+  col.names = TRUE, row.names = TRUE, append = T)
+write.xlsx(`E-GROUP MEMBERSHIP AND OPERATIONS`, file, sheetName = "Group Membership", 
+  col.names = TRUE, row.names = TRUE, append = T)
+write.xlsx(`F. INDIVIDUAL BANK ACCOUNTS`, file, sheetName = "Individual Bank Account", 
+  col.names = TRUE, row.names = TRUE, append = T)
+write.xlsx(`G. SECURITY/ FRAUD`, file, sheetName = "Security_Fraud", 
+  col.names = TRUE, row.names = TRUE, append = T)
+write.xlsx(`H. EXPECTATIONS AND IMPACTS`, file, sheetName = "Expectations", 
+  col.names = TRUE, row.names = TRUE, append = T)
+
 
 ```
 

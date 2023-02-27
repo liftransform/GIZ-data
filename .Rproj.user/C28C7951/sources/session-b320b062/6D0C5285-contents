@@ -1,0 +1,182 @@
+---
+title: "DataVisualization"
+author: "John"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(pacman)
+p_load(googlesheets4,tidyverse,janitor,reshape2,ggthemes)
+colors <- c( "#A9711E","#118467", "#6D847A", "#BB8755", "#82ACA0", "#9C7F61",
+            "#D88523", "#83A593", "#E6A168", "#9DD0C0", "#BE9D7C", "#A2C8B9",
+            "#EBCABA", "#A1DBD3")
+```
+
+
+```{r}
+url = "https://docs.google.com/spreadsheets/d/1gV25QiySiqVtv5Q1_tzgy0TiKS3_-ZGGEeUVEiG3g0I/edit?usp=sharing"
+summary<- read_sheet(url,"summary")
+credit <- read_sheet(url,"CreditScoring")
+loanAcc<- read_sheet(url,"LoanAccess")
+creditFinal <- read_sheet(url,"CreditScoringFinal")
+
+```
+
+# correlation between credit scoring and loan surveys
+
+```{r}
+loan        <- loanAcc[,c("firm_id","Average",
+                          #"Sum",
+                          "Average1",
+                          #"Sum1",
+                          "SFD-ACL-350 Have you ever applied for a loan and been rejected?")]
+names(loan) <- c("firm_id","Average","Average1","rejection")
+cred        <- credit[,c("firm_id","Score")]
+names(cred) <- c("firm_id","credSum") 
+
+loan <- loan %>% 
+  mutate( rejection = ifelse(rejection =="Yes",0,1))
+loan <- loan %>% drop_na()
+dx <- merge(loan,cred,
+            by = "firm_id",
+            #all =T
+            )
+
+data <- cor(dx %>% select(!firm_id) %>% drop_na())
+data <- round(data,2)
+# reduce the size of correlation matrix
+melted_corr_mat <- melt(data)
+# plotting the correlation heatmap
+library(ggplot2)
+ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
+                                   fill=value)) +
+geom_tile() +
+geom_text(aes(Var2, Var1, label = value),
+          color = "black", size = 4)
+```
+
+# preliminary analysis
+
+```{r}
+x <- summary[,c("firm_id","Country")]
+y <- creditFinal[,c("firm_id","FinalCreditScore")]
+xy = merge(y,x,on = "firm_id") %>% drop_na()
+xy %>% filter(FinalCreditScore!="NoResponse") %>% select(Country) %>% table()
+z <- summary[,c("firm_id","Country")]
+
+```
+
+# profit comparison between defaulters and non defaulters
+
+```{r}
+income <- read_sheet(url,"Income")
+expense <- read_sheet(url,"Expense")
+inc_melt <-  income %>% select(!`Unnamed: 0`) %>% melt(id.vars = "firm_id") %>% 
+  rename("income" = "value","week" = "variable")
+exp_melt <-  expense %>% select(!`Unnamed: 0`) %>% melt(id.vars = "firm_id") %>% 
+  rename("expense" = "value","week" = "variable")
+fin <- merge(inc_melt,exp_melt,on = c("firm_id","week"))
+fin$income <- as.numeric(fin$income)
+fin$expense<- as.numeric(fin$expense)
+fin[is.na(fin)]<-0
+Fin <-  merge(fin,summary[,c("firm_id","Country")],on = "firm_id")
+Fin <-  merge(Fin,y,on = "firm_id")
+# create the graphs
+
+Fin %>%  mutate(Profit = income- expense,
+                week = as.numeric(gsub("Week","",week))) %>% 
+  group_by(Country,week,FinalCreditScore) %>% 
+  summarise(Prof = mean(Profit,na.rm =T)) %>% 
+  drop_na() %>%
+  filter(FinalCreditScore != "NoResponse" ) %>% 
+  ggplot(aes(x = week,y = Prof,group =FinalCreditScore ))+
+  geom_line(aes(
+    #linetype=grouped,
+    color = FinalCreditScore
+    ),size =1)+
+  geom_point(aes(color = FinalCreditScore))+
+     scale_color_manual("Groups:",values=colors)+
+  #theme_stata()+
+  theme_hc()+
+     theme(
+       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)
+       )+
+     labs(
+      title = "Profit comparison among countries \n Non defaulters vs Defaulters",
+      y = "Mean Profits",
+      x = "Weeks",
+    )+
+  theme(plot.title = element_text(hjust = 0.4))+facet_wrap(~Country,ncol =2)
+```
+
+# saving behavior for Defaulters and non defaulters
+
+```{r}
+income <- read_sheet(url,"Savings_deposit")
+expense <- read_sheet(url,"Savings_withdrawal")
+inc_melt <-  income %>% select(!`Unnamed: 0`) %>% melt(id.vars = "firm_id") %>% 
+  rename("income" = "value","week" = "variable")
+exp_melt <-  expense %>% select(!`Unnamed: 0`) %>% melt(id.vars = "firm_id") %>% 
+  rename("expense" = "value","week" = "variable")
+fin <- merge(inc_melt,exp_melt,on = c("firm_id","week"))
+fin$income <- as.numeric(fin$income)
+fin$expense<- as.numeric(fin$expense)
+fin[is.na(fin)]<-0
+Fin <-  merge(fin,summary[,c("firm_id","Country")],on = "firm_id")
+Fin <-  merge(Fin,y,on = "firm_id")
+# create the graphs
+
+Fin %>%  mutate(Profit = income- expense,
+                week = as.numeric(gsub("Week","",week))) %>% 
+  group_by(Country,week,FinalCreditScore) %>% 
+  summarise(Prof = mean(Profit,na.rm =T)) %>% 
+  drop_na() %>%
+  filter(FinalCreditScore != "NoResponse" ) %>% 
+  ggplot(aes(x = week,y = Prof,group =FinalCreditScore ))+
+  geom_line(aes(
+    #linetype=grouped,
+    color = FinalCreditScore
+    ),size =1)+
+  geom_point(aes(color = FinalCreditScore))+
+     scale_color_manual("Groups:",values=colors)+
+  #theme_stata()+
+  theme_hc()+
+     theme(
+       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)
+       )+
+     labs(
+      title = "net savings comparison among countries \n Non defaulters vs Defaulters",
+      y = "Average net savings",
+      x = "Weeks",
+    )+
+  theme(plot.title = element_text(hjust = 0.4))+facet_wrap(~Country,ncol =2)
+```
+
+# formalization
+
+```{r}
+# update this data
+formal <- read_sheet(url,"formalization")
+formal <- formal %>% 
+  #select(registration) %>% 
+  mutate(formal =  ifelse(registration %in% c("None","I do not think I need to get a license"),"informal",
+                          ifelse(registration %in% c("Other (specify)","Other","Other, Specify","I don’t want to answer"),"other",
+                                 ifelse(registration == "More than one","highly_formalized","formalized")))) %>% 
+  filter(formal != "other")
+fin <- merge(y,formal,on = "firm_id")
+fin <- merge(fin,z,on ="firm_id")
+fin %>% filter(formal=="informal")
+fin %>% 
+  group_by(FinalCreditScore,Country,formal) %>% 
+  tally() %>% 
+  drop_na() %>% 
+  filter(FinalCreditScore != "NoResponse") %>% 
+  ggplot(aes(x = Country,y = n,fill = formal))+geom_bar(stat = "identity",position = "fill")+
+  facet_wrap(~FinalCreditScore,ncol =1)+coord_flip()
+```
+

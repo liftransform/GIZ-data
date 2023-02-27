@@ -1,0 +1,5 @@
+"0","library(pacman)"
+"0","p_load(googlesheets4,tidyverse,janitor,reshape2,ggthemes)"
+"0","colors <- c( ""#A9711E"",""#118467"", ""#6D847A"", ""#BB8755"", ""#82ACA0"", ""#9C7F61"","
+"0","            ""#D88523"", ""#83A593"", ""#E6A168"", ""#9DD0C0"", ""#BE9D7C"", ""#A2C8B9"","
+"0","            ""#EBCABA"", ""#A1DBD3"")"

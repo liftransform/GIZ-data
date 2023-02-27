@@ -1,0 +1,6 @@
+"0","df84=df_sub1 %>% select(contains(c(""G-1"",""G-2"")))"
+"0","colnames(df84)<-c(""G-1 Has cash ever been stolen from your group by an external party?"",""G-1 Please specify"",""G-2 Has your group ever experienced internal fraud, that is theft from a group leader or member?"",""G-2 Please specify the reason"")"
+"0","df84$`G-2 Has your group ever experienced internal fraud, that is theft from a group leader or member?`<-gsub(""\\(specify)"","" "",df84$`G-2 Has your group ever experienced internal fraud, that is theft from a group leader or member?`)"
+"0",""
+"0",""
+"0","`G. SECURITY/ FRAUD` =df84"

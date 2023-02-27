@@ -1,0 +1,6 @@
+"0",""
+"0","E80=df_sub1 %>% select(contains(c(""E-13"",""A_Q_81_"")))"
+"0","colnames(E80)<-c(""E-13 Was there a cost in running the bank account?"",""E-14 Deposit fees"",""E-14 Withdrawal fees"",""E-14 Bank balance fees "",""E-14 Admin fees"",""E-14 Other"",""E-14 Dont know"")"
+"0",""
+"0","`E-GROUP MEMBERSHIP AND OPERATIONS`=E80"
+"0",""

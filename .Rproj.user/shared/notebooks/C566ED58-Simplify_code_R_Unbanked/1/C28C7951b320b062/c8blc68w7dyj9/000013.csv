@@ -1,0 +1,8 @@
+"0","df6q=df_sub1 %>% select(contains(""C-6""))"
+"0","df6a=cbind(dd[,2],df6q)"
+"0","df7a=df_sub1 %>% select(contains(""C-7""))"
+"0","df8=df_sub1 %>% select(contains(c(""C-8"",""C-9"")))"
+"0","df7a=cbind(df6q,df7a[,2])"
+"0","colnames(df7a)=c(""C-6 Have you ever had any follow-up training by the NGO on the same topics?"",""C-7 How many follow-up sessions do you recall attending?"")"
+"0","dfqs=cbind(df7a,df8)"
+"0","dfqs"

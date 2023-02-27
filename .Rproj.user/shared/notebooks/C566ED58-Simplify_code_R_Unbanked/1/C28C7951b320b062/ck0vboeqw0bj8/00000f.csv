@@ -1,0 +1,7 @@
+"0",""
+"0","# df5=df_sub1 %>% select(contains(""_A_Q_55_""))"
+"0","# df5a=cbind(dd[,2],df5)"
+"0","# df5b=df5a %>% pivot_longer(!ID,names_to = ""Question"",values_to = ""Counts"") %>% filter(Counts!=0) %>% group_by(ID,Counts) %>% tally() "
+"0","# colnames(df5b)=c(""ID"",""C-5 I am now going to read you some topics you did not mention which may also have been covered in the training. Can you tell me if you recall any of these topics?"",""Responses"")"
+"0","# df5b"
+"0",""

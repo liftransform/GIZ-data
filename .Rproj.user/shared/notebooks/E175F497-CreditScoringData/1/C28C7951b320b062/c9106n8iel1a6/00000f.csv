@@ -1,0 +1,23 @@
+"0","url = ""https://docs.google.com/spreadsheets/d/1gV25QiySiqVtv5Q1_tzgy0TiKS3_-ZGGEeUVEiG3g0I/edit?usp=sharing"""
+"0","summary<- read_sheet(url,""summary"")"
+"2","Auto-refreshing stale OAuth token.
+"
+"2","[32m✔[39m Reading from [36mCreditScoringData[39m.
+"
+"2","[32m✔[39m Range '[33m'summary'[39m'.
+"
+"0","credit <- read_sheet(url,""CreditScoring"")"
+"2","[32m✔[39m Reading from [36mCreditScoringData[39m.
+"
+"2","[32m✔[39m Range '[33m'CreditScoring'[39m'.
+"
+"0","loanAcc<- read_sheet(url,""LoanAccess"")"
+"2","[32m✔[39m Reading from [36mCreditScoringData[39m.
+"
+"2","[32m✔[39m Range '[33m'LoanAccess'[39m'.
+"
+"0","creditFinal <- read_sheet(url,""CreditScoringFinal"")"
+"2","[32m✔[39m Reading from [36mCreditScoringData[39m.
+"
+"2","[32m✔[39m Range '[33m'CreditScoringFinal'[39m'.
+"
